@@ -1,22 +1,29 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu, IonButtons, IonMenuButton } from '@ionic/react';
 import './Home.css';
 import { useState } from 'react';
-import { UnEvent } from '../interfaces';
+import { UnEvent, UnGroupe } from '../interfaces';
 import SelectionGroupesComponant from '../components/GroupesSelectionComponant';
+import CalendarComponant from '../components/CalendarComponant';
 
 const Home: React.FC = () => {
   const [events, setEvents] = useState<UnEvent[]>([])
+  const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
+
+  const handleGroupSelection = (groups: UnGroupe[]) => {
+    setSelectedGroups(groups);
+    console.log("Selected groups: ", groups);
+  };
 
   return (
     <>
       <IonMenu type='push' contentId="main-content">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>Menu Content</IonTitle>
+            <IonTitle>Selection des groupes</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <IonContent className="ion-padding">
-          <SelectionGroupesComponant></SelectionGroupesComponant>
+        <IonContent>
+          <SelectionGroupesComponant onGroupSelection={handleGroupSelection}></SelectionGroupesComponant>
         </IonContent>
       </IonMenu>
       <IonPage id="main-content">
@@ -25,12 +32,12 @@ const Home: React.FC = () => {
             <IonButtons slot="start">
               <IonMenuButton></IonMenuButton>
             </IonButtons>
-            <IonTitle>Menu</IonTitle>
+            <IonTitle>UPPAEDT</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
 
-
+        <CalendarComponant selectedGroups={selectedGroups}></CalendarComponant>
         </IonContent>
       </IonPage>
     </>

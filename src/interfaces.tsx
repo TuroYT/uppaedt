@@ -20,3 +20,13 @@ export interface UnGroupe {
     nomGroupe : string,
     idFormation : number
 }
+
+export interface UnCours {
+    idCours : number,
+    nomCours : string,
+    dateDeb : Date,
+    dateFin : Date,
+    prof : string,
+    lieu : string,
+    idFormation : number
+}
