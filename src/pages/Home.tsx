@@ -1,12 +1,12 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu, IonButtons, IonMenuButton } from '@ionic/react';
 import './Home.css';
 import { useState } from 'react';
-import { UnEvent, UnGroupe } from '../interfaces';
+import { UnCours, UnGroupe } from '../interfaces';
 import SelectionGroupesComponant from '../components/GroupesSelectionComponant';
 import CalendarComponant from '../components/CalendarComponant';
 
 const Home: React.FC = () => {
-  const [events, setEvents] = useState<UnEvent[]>([])
+  const [Cours, setCours] = useState<UnCours[]>([])
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
 
   const handleGroupSelection = (groups: UnGroupe[]) => {

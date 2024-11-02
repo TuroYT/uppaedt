@@ -1,48 +1,302 @@
-import { useEffect, useState } from 'react';
-import { UnCours, UnGroupe } from '../interfaces';
-import { doGet, doPost } from '../utils/Requests';
-
+import { useEffect, useRef, useState } from 'react';
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { UnCours, UnGroupe, Event } from '../interfaces';
+import { doPost } from '../utils/Requests';
+import './Calendar.css';
+import FullCalendar from '@fullcalendar/react'
+import { IonButton, IonButtons, IonDatetime, IonHeader, IonIcon, IonItem, IonLabel, IonList, IonModal, IonTitle, IonToolbar, useIonAlert } from '@ionic/react';
+import { useSwipeable } from "react-swipeable";
+import { caretBackOutline, caretForwardOutline } from "ionicons/icons";
+import { EventInput, EventSourceInput } from '@fullcalendar/core';
 
 interface ContainerProps { 
   selectedGroups: UnGroupe[];
 }
+interface EventInfo {
+  cours: string;
+  location: string;
+  prof: string;
+  start: Date;
+  end: Date;
+  isLastCours: boolean;
+}
 
 const CalendarComponant: React.FC<ContainerProps> = ({selectedGroups}) => {
-  const [events, setEvents] = useState<UnCours[]>([])
+  const [events, setEvents] = useState<EventInput[]>([]);
+  const modal = useRef<HTMLIonModalElement | null>(null);
+  const [presentAlert] = useIonAlert();
+  const calendarRef = useRef<FullCalendar | null>(null);
+  const modalRef = useRef<HTMLIonModalElement | null>(null);
+  const datetimeRef = useRef<HTMLIonDatetimeElement | null>(null);
+  const swiperRef = useRef<any>(null); // Assuming swiperRef is from a library that doesn't have TypeScript types
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [eventInfo, setEventInfo] = useState<EventInfo>({
+    cours: '',
+    location: '',
+    prof: '',
+    start: new Date(),
+    end: new Date(),
+    isLastCours: false,
+  });
+
 
   useEffect(() => {
    const fetchEvents = async () => {
-    selectedGroups.map(async (g) => {
-
-      try {
-        const response: UnCours[] = await doPost("/planning/GetPlanningIdFomrationNomGroupe",  {
-          nomGroupe: g.nomGroupe,
-          idFormation: g.idFormation, // Replace with the actual idFormation if it's dynamic
-          rangeDate: 6, // Replace with the actual rangeDate if it's dynamic
-          centerDate: new Date() // Replace with the actual centerDate if it's dynamic
+    try {
+      const response: UnCours[] = await doPost("/planning/GetPlanningIdFomrationNomGroupe",  {
+        nomGroupes: selectedGroups.map((g) => {return g.nomGroupe}).join(','), // Replace with the actual nomGroupe if it's dynamic
+        idFormations: selectedGroups.map((g) => {return g.idFormation}).join(','), // Replace with the actual idFormation if it's dynamic
+        rangeDate: 10, // Replace with the actual rangeDate if it's dynamic
+        centerDate: currentDate // Replace with the actual centerDate if it's dynamic
+      })
+      
+      console.log("Response: ", response);
+      let events: EventInput[] = [];
+      response.map((c) => {
+        events.push({
+          title: c.nomCours,
+          start: c.dateDeb,
+          end: c.dateFin,
+          description: c.prof,
+          id: c.idCours.toString(),
+          color: "blue",
+          extendedProps: {
+            prof: c.prof,
+            cours: c.nomCours,
+            location: c.lieu,
+            isLastCours: false,
+            start: c.dateDeb,
+            end: c.dateFin,
+          }
         })
-        
-        setEvents(response); // ! marche que pour un groupe
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      }
+      })
 
-
-    })
-
+      setEvents(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
       
     }
     
     fetchEvents();
 
 
-  }, [selectedGroups]);
+  }, [selectedGroups, currentDate]);
 
+  function goNext() {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.next();
+    refreshDate();
+  }
+  function goBack() {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.prev();
+    refreshDate();
+  }
+  function today() {
+    const calendarApi = calendarRef.current?.getApi();
+    calendarApi?.today();
+    refreshDate();
+  }
 
+  function setNewDate() {
+    modalRef.current?.dismiss();
+    const calendarApi = calendarRef.current?.getApi();
+    const dateValue = datetimeRef.current?.value;
+    if (dateValue) {
+      if (typeof dateValue === 'string') {
+        calendarApi?.gotoDate(new Date(dateValue));
+      }
+    }
+    refreshDate();
+  }
+
+  function refreshDate() {
+    const calendarApi = calendarRef.current?.getApi();
+    setCurrentDate(calendarApi?.getDate() || new Date());
+  }
+
+  // verifie si c'est un weekend
+  const isWeekday = (dateString: string) => {
+    const date = new Date(dateString);
+    const utcDay = date.getUTCDay();
+    return utcDay !== 0 && utcDay !== 6;
+  };
+
+  const onSwipe = () => {
+    if (swiperRef.current.activeIndex === 0) {
+      goBack();
+    } else {
+      goNext;
+    }
+    if (swiperRef.current && swiperRef.current.swiper) {
+      swiperRef.current.swiper.slideTo(1);
+    }
+  };
+  const handlers = useSwipeable({
+    onSwipedLeft: () => goNext(),
+    onSwipedRight: () => goBack(),
+  });
+
+  const renderEventContent = (eventInfo: {
+    timeText: any;
+    event: {
+      extendedProps: {
+        cours: string;
+        location: string;
+        prof: string;
+        start: string;
+        end: string;
+        isLastCours: boolean;
+      };
+    };
+  }) => {
+    // Evevent Render
+    return (
+      <>
+        <>{eventInfo.timeText}</>
+        <br />
+        {eventInfo.event.extendedProps.cours.length > 33
+          ? eventInfo.event.extendedProps.cours.slice(0, 30) + " ..."
+          : eventInfo.event.extendedProps.cours}
+        <br />
+        <i>{eventInfo.event.extendedProps.location}</i>
+        <br />
+
+        {eventInfo.event.extendedProps.prof != "NA" ? (
+          <i>{eventInfo.event.extendedProps.prof}</i>
+        ) : (
+          ""
+        )}
+      </>
+    );
+  } 
 
 
   return (
-    <>{selectedGroups.map((g) => {return g.nomGroupe})}</>
+    <>
+    {
+      <>
+        <div id="main" {...handlers}>
+          <div className="center">
+            <IonButton
+              id="datetime-picker"
+              shape="round"
+              fill="outline"
+              size="large"
+            >
+              {currentDate.toLocaleDateString()}
+            </IonButton>
+            <br />
+            <IonButton onClick={today}>Ajourd'hui</IonButton>
+            <IonButton onClick={goBack} slot="icon-only">
+              <IonIcon slot="icon-only" icon={caretBackOutline}></IonIcon>
+            </IonButton>
+            <IonButton onClick={goNext} slot="icon-only">
+              <IonIcon slot="icon-only" icon={caretForwardOutline}></IonIcon>
+            </IonButton>
+          </div>
+
+          <IonModal
+            keepContentsMounted={true}
+            trigger="datetime-picker"
+            ref={modalRef}
+          >
+            <IonDatetime
+              id="datetime"
+              presentation="date"
+              onIonChange={setNewDate}
+              ref={datetimeRef}
+              firstDayOfWeek={1}
+              isDateEnabled={isWeekday}
+            ></IonDatetime>
+          </IonModal>
+
+          <IonModal ref={modal} id="modalevent">
+            <IonHeader>
+              <IonToolbar>
+                <IonButtons slot="end">
+                  <IonButton onClick={() => modal.current?.dismiss()}>
+                    ok
+                  </IonButton>
+                </IonButtons>
+                <IonTitle>{eventInfo.cours}</IonTitle>
+              </IonToolbar>
+            </IonHeader>
+
+            <IonList>
+              <IonItem>
+                <IonLabel>
+                  <p>Cours</p>
+                  {eventInfo.cours}
+                </IonLabel>
+              </IonItem>
+              
+              <IonItem>
+                <IonLabel>
+                  <p>Professeur</p>
+                  {eventInfo.prof.replace("\n", " ")}
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                  <p>Lieu</p>
+                  {eventInfo.location}
+                </IonLabel>
+              </IonItem>
+              <IonItem>
+                <IonLabel>
+                  <p>Heure</p>
+                  {new Date(eventInfo.start).toLocaleTimeString()} - {new Date(eventInfo.end).toLocaleTimeString()}
+                </IonLabel>
+              </IonItem>
+              {eventInfo.isLastCours ? (
+                <IonItem>
+                  <IonLabel>
+                    <h2>Dernier cours du module programmé</h2>
+                  </IonLabel>
+                </IonItem>
+              ) : (
+                ""
+              )}
+            </IonList>
+          </IonModal>
+              <FullCalendar
+                slotEventOverlap={false}
+                ref={calendarRef}
+                plugins={[timeGridPlugin]}
+                initialView="timeGridDay"
+                locale="fr"
+                headerToolbar={{
+                  start: "",
+                  center: "",
+                  end: "",
+                }}
+                titleFormat={{ month: "long", day: "numeric" }}
+                hiddenDays={[6, 0]}
+                events={events}
+                allDaySlot={false}
+                nowIndicator={true}
+                height="auto"
+                slotMinTime="08:00"
+                slotMaxTime="19:00"
+                eventContent={renderEventContent}
+                eventClick={(event) => {
+                  setEventInfo({
+                    cours: event.event.extendedProps.cours,
+                    location: event.event.extendedProps.location,
+                    prof: event.event.extendedProps.prof,
+                    start: event.event.extendedProps.start,
+                    end: event.event.extendedProps.end,
+                    isLastCours: event.event.extendedProps.isLastCours,
+                  });
+                  modal.current?.present();
+                }}
+              />
+        </div>
+      </>
+    }
+  </>
   );
 };
 

@@ -1,14 +1,3 @@
-export interface UnEvent {
-    idCours : number,
-    nomGroupe : string,
-    nomCours : string,
-    dateDeb : Date,
-    dateFin : Date,
-    prof : string,
-    lieu : string,
-    idFormation : number
-}
-
 export interface UneFormation {
     idFormation : number,
     nom: string,
@@ -30,3 +19,20 @@ export interface UnCours {
     lieu : string,
     idFormation : number
 }
+
+export interface Event {
+    title: String;
+    start: String;
+    end: String;
+    description: String;
+    id: String;
+    color: String;
+    extendedProps: {
+      prof: String;
+      cours: String;
+      location: String;
+      isLastCours: boolean;
+      start: String;
+      end: String;
+    };
+  }
