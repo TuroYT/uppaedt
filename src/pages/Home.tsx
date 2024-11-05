@@ -1,12 +1,17 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu, IonButtons, IonMenuButton } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonMenu, IonButtons, IonMenuButton, RefresherEventDetail, IonRefresher, IonRefresherContent } from '@ionic/react';
 import './Home.css';
 import { useState } from 'react';
 import { UnCours, UnGroupe } from '../interfaces';
 import SelectionGroupesComponant from '../components/GroupesSelectionComponant';
 import CalendarComponant from '../components/CalendarComponant';
+import { Link } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
+
+  const handleRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    window.location.reload();
+  }
 
   const handleGroupSelection = (groups: UnGroupe[]) => {
     setSelectedGroups(groups);
@@ -21,6 +26,9 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent>
+          
+        
+        
           <SelectionGroupesComponant onGroupSelection={handleGroupSelection}></SelectionGroupesComponant>
         </IonContent>
       </IonMenu>
@@ -34,7 +42,9 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
-
+        <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
+          <IonRefresherContent></IonRefresherContent>
+        </IonRefresher>
         <CalendarComponant selectedGroups={selectedGroups}></CalendarComponant>
         </IonContent>
       </IonPage>

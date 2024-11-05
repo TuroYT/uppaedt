@@ -75,7 +75,7 @@ const CalendarComponant: React.FC<ContainerProps> = ({ selectedGroups }) => {
           }
         );
 
-        console.log("Response: ", response);
+        
         let events: EventInput[] = [];
         response.map((c) => {
           events.push({

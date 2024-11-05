@@ -78,21 +78,26 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
   }
 
   return (
-    <IonAccordion>
+    <IonAccordion key={formation.idFormation}>
       <IonItem slot="header" color="light">
         <IonLabel>{formation.nom}</IonLabel>
       </IonItem>
       {groups.map((groupe) => {
+        const uniqueKey = `${groupe.nomGroupe}-${groupe.idFormation}`;
         return (
-          <>
-            <IonItem slot="content" key={groupe.nomGroupe}>
-              <IonToggle checked={selectedGroups.some(
+          <IonItem slot="content" key={uniqueKey}>
+            <IonToggle 
+              key={uniqueKey} 
+              checked={selectedGroups.some(
                 (selectedGroup) =>
                   selectedGroup.nomGroupe === groupe.nomGroupe &&
                   selectedGroup.idFormation === groupe.idFormation
-              )} onIonChange={(e : CustomEvent) => {handleGroupSelection(e, groupe)}}>{groupe.nomGroupe}</IonToggle>
-            </IonItem>
-          </>
+              )} 
+              onIonChange={(e: CustomEvent) => handleGroupSelection(e, groupe)}
+            >
+              {groupe.nomGroupe}
+            </IonToggle>
+          </IonItem>
         );
       })}
     </IonAccordion>
