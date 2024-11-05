@@ -17,7 +17,8 @@ export interface UnCours {
     dateFin : Date,
     prof : string,
     lieu : string,
-    idFormation : number
+    idFormation : number,
+    nomGroupe : string
 }
 
 export interface Event {
