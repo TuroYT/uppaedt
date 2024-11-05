@@ -6,12 +6,10 @@ import SelectionGroupesComponant from '../components/GroupesSelectionComponant';
 import CalendarComponant from '../components/CalendarComponant';
 
 const Home: React.FC = () => {
-  const [Cours, setCours] = useState<UnCours[]>([])
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
 
   const handleGroupSelection = (groups: UnGroupe[]) => {
     setSelectedGroups(groups);
-    console.log("Selected groups: ", groups);
   };
 
   return (

@@ -10,6 +10,7 @@ import {
   IonSpinner,
   IonToggle,
 } from "@ionic/react";
+import { Preferences } from '@capacitor/preferences';
 
 interface GroupesSelectionComponantProps {
     onGroupSelection: (groups: UnGroupe[]) => void;
@@ -22,6 +23,10 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
 
   useEffect(() => {
     const fetchGroups = async () => {
+
+      
+
+
       try {
         const response: UnGroupe[] = await doPost(
           "/formation/getGroups",
@@ -34,19 +39,41 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
       }
     };
 
+    const loadSelectedGroups = async () => {
+      const { value } = await Preferences.get({ key: `selectedGroupes` });
+      if (value) {
+        setSelectedGroups(JSON.parse(value));
+        onGroupSelection(JSON.parse(value));
+      }
+    };
+
     fetchGroups();
+    loadSelectedGroups();
   }, [formation.idFormation]);
 
-  const handleGroupSelection = (e : CustomEvent, groupe : UnGroupe) => {
+  const handleGroupSelection = async (e : CustomEvent, groupe : UnGroupe) => {
     
     let updatedGroups;
-    if (e.detail.checked) {
-      updatedGroups = [...selectedGroups, groupe];
+    if (selectedGroups.some((g) => g.nomGroupe === groupe.nomGroupe && g.idFormation === groupe.idFormation)) {
+      updatedGroups = selectedGroups.filter((g) => g.nomGroupe !== groupe.nomGroupe || g.idFormation !== groupe.idFormation);
     } else {
-      updatedGroups = selectedGroups.filter((g) => g !== groupe);
+      updatedGroups = [...selectedGroups, groupe];
     }
-    setSelectedGroups(updatedGroups);
-    onGroupSelection(updatedGroups);
+
+    try {
+      // Save it to memory
+      await Preferences.set({
+        key: 'selectedGroupes',
+        value: JSON.stringify(updatedGroups)
+      });
+
+      // Update state after saving preferences
+      setSelectedGroups(updatedGroups);
+      onGroupSelection(updatedGroups);
+      console.log(selectedGroups)
+    } catch (error) {
+      console.error('Error saving selected groups:', error);
+    }
     
   }
 
@@ -59,7 +86,11 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
         return (
           <>
             <IonItem slot="content" key={groupe.nomGroupe}>
-              <IonToggle onIonChange={(e : CustomEvent) => {handleGroupSelection(e, groupe)}}>{groupe.nomGroupe}</IonToggle>
+              <IonToggle checked={selectedGroups.some(
+                (selectedGroup) =>
+                  selectedGroup.nomGroupe === groupe.nomGroupe &&
+                  selectedGroup.idFormation === groupe.idFormation
+              )} onIonChange={(e : CustomEvent) => {handleGroupSelection(e, groupe)}}>{groupe.nomGroupe}</IonToggle>
             </IonItem>
           </>
         );
