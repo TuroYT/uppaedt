@@ -24,6 +24,7 @@ import { EventInput, EventSourceInput } from "@fullcalendar/core";
 
 interface ContainerProps {
   selectedGroups: UnGroupe[];
+  handleNewCours: (cours: UnCours[]) => void;
 }
 interface EventInfo {
   cours: string;
@@ -35,7 +36,10 @@ interface EventInfo {
   groupe: string;
 }
 
-const CalendarComponant: React.FC<ContainerProps> = ({ selectedGroups }) => {
+const CalendarComponant: React.FC<ContainerProps> = ({
+  selectedGroups,
+  handleNewCours,
+}) => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const modal = useRef<HTMLIonModalElement | null>(null);
   const [presentAlert] = useIonAlert();
@@ -75,16 +79,24 @@ const CalendarComponant: React.FC<ContainerProps> = ({ selectedGroups }) => {
           }
         );
 
-        
+        handleNewCours(response);
         let events: EventInput[] = [];
+        let color;
         response.map((c) => {
+          if (c.nomGroupe == "NA") {
+            color = "red";
+          } else if (c.prof == "NA") {
+            color = "#005049";
+          } else {
+            color = "default";
+          }
           events.push({
             title: c.nomCours,
             start: c.dateDeb,
             end: c.dateFin,
             description: c.prof,
             id: c.idCours.toString(),
-            color: "blue",
+            color: color, // vert pour cours en autonomie
             extendedProps: {
               prof: c.prof,
               cours: c.nomCours,
@@ -248,6 +260,15 @@ const CalendarComponant: React.FC<ContainerProps> = ({ selectedGroups }) => {
               </IonHeader>
 
               <IonList>
+                {eventInfo.groupe == "NA" ? (
+                  <IonItem>
+                    <IonLabel>
+                      <h2 className="redText">Exceptionnel</h2>
+                    </IonLabel>
+                  </IonItem>
+                ) : (
+                  ""
+                )}
                 <IonItem>
                   <IonLabel>
                     <p>Cours</p>

@@ -10,29 +10,31 @@ import {
   IonSpinner,
   IonToggle,
 } from "@ionic/react";
-import { Preferences } from '@capacitor/preferences';
+import { Preferences } from "@capacitor/preferences";
 
 interface GroupesSelectionComponantProps {
-    onGroupSelection: (groups: UnGroupe[]) => void;
-  }
+  onGroupSelection: (groups: UnGroupe[]) => void;
+}
 
 // FormationComponent is a child component of GroupesSelectionComponant
-const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFormation, onGroupSelection: (groups: UnGroupe[]) => void }) => {
+const FormationComponent = ({
+  formation,
+  onGroupSelection,
+}: {
+  formation: UneFormation;
+  onGroupSelection: (groups: UnGroupe[]) => void;
+}) => {
   const [groups, setGroups] = useState<UnGroupe[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
 
   useEffect(() => {
     const fetchGroups = async () => {
-
-      
-
-
       try {
         const response: UnGroupe[] = await doPost(
           "/formation/getGroups",
           "idFormation=" + formation.idFormation
         );
-        
+
         setGroups(response);
       } catch (error) {
         console.error("Error fetching formations:", error);
@@ -51,11 +53,20 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
     loadSelectedGroups();
   }, [formation.idFormation]);
 
-  const handleGroupSelection = async (e : CustomEvent, groupe : UnGroupe) => {
-    
+  const handleGroupSelection = async (e: CustomEvent, groupe: UnGroupe) => {
     let updatedGroups;
-    if (selectedGroups.some((g) => g.nomGroupe === groupe.nomGroupe && g.idFormation === groupe.idFormation)) {
-      updatedGroups = selectedGroups.filter((g) => g.nomGroupe !== groupe.nomGroupe || g.idFormation !== groupe.idFormation);
+    if (
+      selectedGroups.some(
+        (g) =>
+          g.nomGroupe === groupe.nomGroupe &&
+          g.idFormation === groupe.idFormation
+      )
+    ) {
+      updatedGroups = selectedGroups.filter(
+        (g) =>
+          g.nomGroupe !== groupe.nomGroupe ||
+          g.idFormation !== groupe.idFormation
+      );
     } else {
       updatedGroups = [...selectedGroups, groupe];
     }
@@ -63,19 +74,18 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
     try {
       // Save it to memory
       await Preferences.set({
-        key: 'selectedGroupes',
-        value: JSON.stringify(updatedGroups)
+        key: "selectedGroupes",
+        value: JSON.stringify(updatedGroups),
       });
 
       // Update state after saving preferences
       setSelectedGroups(updatedGroups);
       onGroupSelection(updatedGroups);
-      console.log(selectedGroups)
+      console.log(selectedGroups);
     } catch (error) {
-      console.error('Error saving selected groups:', error);
+      console.error("Error saving selected groups:", error);
     }
-    
-  }
+  };
 
   return (
     <IonAccordion key={formation.idFormation}>
@@ -86,13 +96,13 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
         const uniqueKey = `${groupe.nomGroupe}-${groupe.idFormation}`;
         return (
           <IonItem slot="content" key={uniqueKey}>
-            <IonToggle 
-              key={uniqueKey} 
+            <IonToggle
+              key={uniqueKey}
               checked={selectedGroups.some(
                 (selectedGroup) =>
                   selectedGroup.nomGroupe === groupe.nomGroupe &&
                   selectedGroup.idFormation === groupe.idFormation
-              )} 
+              )}
               onIonChange={(e: CustomEvent) => handleGroupSelection(e, groupe)}
             >
               {groupe.nomGroupe}
@@ -104,8 +114,10 @@ const FormationComponent = ({ formation, onGroupSelection }: { formation: UneFor
   );
 };
 
-// GroupesSelectionComponant is a child component of Home, c'est le composant affiché dans le menu principal    
-const GroupesSelectionComponant : React.FC<GroupesSelectionComponantProps> = ({ onGroupSelection }) => {
+// GroupesSelectionComponant is a child component of Home, c'est le composant affiché dans le menu principal
+const GroupesSelectionComponant: React.FC<GroupesSelectionComponantProps> = ({
+  onGroupSelection,
+}) => {
   const [formations, setFormations] = useState<UneFormation[]>([]);
 
   useEffect(() => {
