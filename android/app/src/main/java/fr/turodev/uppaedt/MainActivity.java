@@ -1,4 +1,4 @@
-package ionic.uppaedt;
+package fr.turodev.uppaedt;
 
 import com.getcapacitor.BridgeActivity;
 

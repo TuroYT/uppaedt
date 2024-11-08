@@ -14,6 +14,7 @@ import {
   LocalNotificationSchema,
   LocalNotifications,
 } from "@capacitor/local-notifications";
+import './notifs.css'
 
 interface ContainerProps {
   cours: UnCours[];
@@ -84,7 +85,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({ cours }) => {
         <IonCardHeader>
           <IonToggle onClick={handleCheck} checked={checked}>
             <>
-              <strong className="darkText">Activer les notifications ?</strong>
+              <p className="darkText">Activer les notifications ?</p>
             </>
           </IonToggle>
         </IonCardHeader>

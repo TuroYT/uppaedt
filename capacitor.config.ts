@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'ionic.uppaedt',
+  appId: 'fr.turodev.uppaedt',
   appName: 'uppaedt',
   webDir: 'dist',
   plugins: {
