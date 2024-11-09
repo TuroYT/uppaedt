@@ -1,4 +1,4 @@
-package uppaedt.ionic;
+package ionic.edt4rt;
 
 import com.getcapacitor.BridgeActivity;
 

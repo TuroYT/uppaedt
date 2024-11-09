@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "uppaedt.ionic"
+    namespace "ionic.edt4rt"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "uppaedt.ionic"
+        applicationId "ionic.edt4rt"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 10
