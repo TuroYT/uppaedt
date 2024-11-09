@@ -30,7 +30,7 @@ export const doPost = async (apiPath: string, datas: any) => {
   const options: HttpOptions = {
     url: API_URL + apiPath,
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded",
     },
     data: new URLSearchParams(datas).toString(),
   };

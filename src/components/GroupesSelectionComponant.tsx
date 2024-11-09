@@ -6,7 +6,6 @@ import {
   IonAccordionGroup,
   IonItem,
   IonLabel,
-  IonLoading,
   IonSpinner,
   IonToggle,
 } from "@ionic/react";

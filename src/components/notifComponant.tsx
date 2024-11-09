@@ -1,26 +1,21 @@
 import { Preferences } from "@capacitor/preferences";
-import { UnCours } from "../interfaces";
-import {
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonCheckbox,
-  IonToggle,
-} from "@ionic/react";
+import { UnCours, UnGroupe } from "../interfaces";
+import { IonCard, IonCardHeader, IonToggle } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 import {
   LocalNotificationSchema,
   LocalNotifications,
 } from "@capacitor/local-notifications";
-import './notifs.css'
+import "./notifs.css";
+import { doPost } from "../utils/Requests";
 
 interface ContainerProps {
-  cours: UnCours[];
+  selectedGroups: UnGroupe[];
 }
 
-export const NotifComponant: React.FC<ContainerProps> = ({ cours }) => {
+export const NotifComponant: React.FC<ContainerProps> = ({
+  selectedGroups,
+}) => {
   const [checked, setChecked] = useState(false);
 
   const handleCheck = () => {
@@ -39,8 +34,26 @@ export const NotifComponant: React.FC<ContainerProps> = ({ cours }) => {
       }
     };
 
-    // ajout des notifications
+    //récupération des prochains cours
     const addNotifs = async () => {
+      const response: UnCours[] = await doPost(
+        "/planning/GetPlanningIdFomrationNomGroupe",
+        {
+          nomGroupes: selectedGroups
+            .map((g) => {
+              return g.nomGroupe;
+            })
+            .join(","), // Replace with the actual nomGroupe if it's dynamic
+          idFormations: selectedGroups
+            .map((g) => {
+              return g.idFormation;
+            })
+            .join(","), // Replace with the actual idFormation if it's dynamic
+          rangeDate: 10, // Replace with the actual rangeDate if it's dynamic
+          centerDate: new Date(), // Replace with the actual centerDate if it's dynamic
+        }
+      );
+
       if (checked) {
         LocalNotifications.requestPermissions();
         // clear anciennes notifs
@@ -49,7 +62,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({ cours }) => {
         });
         let toAdd: LocalNotificationSchema[] = [];
 
-        cours.map((cour) => {
+        response.map((cour) => {
           // cours futur
           if (cour.dateDeb > new Date()) {
             const notification: LocalNotificationSchema = {
@@ -77,7 +90,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({ cours }) => {
 
     loadDefaultChecked();
     addNotifs();
-  }, [checked, cours]);
+  }, [checked]);
 
   return (
     <>

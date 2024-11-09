@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import { UnCours, UnGroupe, Event } from "../interfaces";
+import { UnCours, UnGroupe } from "../interfaces";
 import { doPost } from "../utils/Requests";
 import "./Calendar.css";
 import FullCalendar from "@fullcalendar/react";
@@ -20,11 +20,10 @@ import {
 } from "@ionic/react";
 import { useSwipeable } from "react-swipeable";
 import { caretBackOutline, caretForwardOutline } from "ionicons/icons";
-import { EventInput, EventSourceInput } from "@fullcalendar/core";
+import { EventInput } from "@fullcalendar/core";
 
 interface ContainerProps {
   selectedGroups: UnGroupe[];
-  handleNewCours: (cours: UnCours[]) => void;
 }
 interface EventInfo {
   cours: string;
@@ -38,11 +37,10 @@ interface EventInfo {
 
 const CalendarComponant: React.FC<ContainerProps> = ({
   selectedGroups,
-  handleNewCours,
+  
 }) => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const modal = useRef<HTMLIonModalElement | null>(null);
-  const [presentAlert] = useIonAlert();
   const calendarRef = useRef<FullCalendar | null>(null);
   const modalRef = useRef<HTMLIonModalElement | null>(null);
   const datetimeRef = useRef<HTMLIonDatetimeElement | null>(null);
@@ -79,7 +77,7 @@ const CalendarComponant: React.FC<ContainerProps> = ({
           }
         );
 
-        handleNewCours(response);
+
         let events: EventInput[] = [];
         let color;
         response.map((c) => {
@@ -114,7 +112,7 @@ const CalendarComponant: React.FC<ContainerProps> = ({
         console.error("Error fetching events:", error);
       }
     };
-
+    // main fonction
     fetchEvents();
   }, [selectedGroups, currentDate]);
 
