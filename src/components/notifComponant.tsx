@@ -64,7 +64,9 @@ export const NotifComponant: React.FC<ContainerProps> = ({
 
         response.map((cour) => {
           // cours futur
-          if (cour.dateDeb > new Date()) {
+          
+           console.log(new Date(cour.dateDeb) > new Date())
+          if (new Date(cour.dateDeb) > new Date()) {
             const notification: LocalNotificationSchema = {
               title: "Dans 10 minutes : " + cour.nomCours,
               body: cour.lieu,
@@ -76,11 +78,13 @@ export const NotifComponant: React.FC<ContainerProps> = ({
               }, // Schedule 10 minutes before the course
             };
             toAdd.push(notification);
+            console.log("Notif ajoutée : ",notification );
           }
         });
 
         // ajout des notifs
         LocalNotifications.schedule({ notifications: toAdd });
+        //console.log("Notifs ajoutées : ",response );
       } else {
         LocalNotifications.cancel({
           notifications: (await LocalNotifications.getPending()).notifications,
@@ -90,7 +94,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({
 
     loadDefaultChecked();
     addNotifs();
-  }, [checked]);
+  }, [selectedGroups, checked]);
 
   return (
     <>
