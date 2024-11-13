@@ -27,6 +27,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({
   };
 
   useEffect(() => {
+    
     const loadDefaultChecked = async () => {
       const { value } = await Preferences.get({ key: `notificationIsActive` });
       if (value != null) {
