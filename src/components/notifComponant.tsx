@@ -2,12 +2,15 @@ import { Preferences } from "@capacitor/preferences";
 import { UnCours, UnGroupe } from "../interfaces";
 import { IonCard, IonCardHeader, IonToggle } from "@ionic/react";
 import React, { useEffect, useState } from "react";
+
 import {
   LocalNotificationSchema,
   LocalNotifications,
 } from "@capacitor/local-notifications";
 import "./notifs.css";
 import { doPost } from "../utils/Requests";
+import { Capacitor } from "@capacitor/core";
+//import { PrintMsg } from "../utils/PrintMsg";
 
 interface ContainerProps {
   selectedGroups: UnGroupe[];
@@ -17,6 +20,7 @@ export const NotifComponant: React.FC<ContainerProps> = ({
   selectedGroups,
 }) => {
   const [checked, setChecked] = useState(false);
+  const [notifs, setnotifs] = useState('');
 
   const handleCheck = () => {
     setChecked(!checked);
@@ -27,6 +31,24 @@ export const NotifComponant: React.FC<ContainerProps> = ({
   };
 
   useEffect(() => {
+    const MakeChannel = async () => {
+      if (Capacitor.getPlatform() !== 'web') {
+        const currentChannels = await LocalNotifications.listChannels();
+        if (!currentChannels.channels.some((channel) => channel.id === '1')) {
+          LocalNotifications.createChannel({
+            id: '1',
+            name: 'events',
+            description: 'notif avant les cours',
+            importance: 3,
+            visibility: 1,
+            vibration: true,
+            sound: 'sound_name.wav'
+          });
+        }
+      } else {
+        console.warn("LocalNotifications plugin is not implemented on web.");
+      }
+    };
     
     const loadDefaultChecked = async () => {
       const { value } = await Preferences.get({ key: `notificationIsActive` });
@@ -56,13 +78,13 @@ export const NotifComponant: React.FC<ContainerProps> = ({
       );
 
       if (checked) {
-        LocalNotifications.requestPermissions();
+         LocalNotifications.requestPermissions();
         // clear anciennes notifs
-        LocalNotifications.cancel({
+         LocalNotifications.cancel({
           notifications: (await LocalNotifications.getPending()).notifications,
         });
         let toAdd: LocalNotificationSchema[] = [];
-
+        setnotifs(JSON.stringify(toAdd))
         response.map((cour) => {
           // cours futur
           
@@ -79,21 +101,29 @@ export const NotifComponant: React.FC<ContainerProps> = ({
               }, // Schedule 10 minutes before the course
             };
             toAdd.push(notification);
-            console.log("Notif ajoutée : ",notification );
+            //console.log("Notif ajoutée : ",notification );
           }
         });
 
         // ajout des notifs
-        LocalNotifications.schedule({ notifications: toAdd });
+        //console.log(toAdd)
+        
+        let results = await LocalNotifications.schedule({ notifications: toAdd });
+        setnotifs(JSON.stringify(results))
+        //await PrintMsg('Info', JSON.stringify(results))
+        
+        console.log(toAdd)
+        
         //console.log("Notifs ajoutées : ",response );
       } else {
-        LocalNotifications.cancel({
+        await LocalNotifications.cancel({
           notifications: (await LocalNotifications.getPending()).notifications,
         });
       }
     };
 
     loadDefaultChecked();
+    MakeChannel();
     addNotifs();
   }, [selectedGroups, checked]);
 
@@ -104,10 +134,12 @@ export const NotifComponant: React.FC<ContainerProps> = ({
           <IonToggle onClick={handleCheck} checked={checked}>
             <>
               <p className="darkText">Activer les notifications ?</p>
+              
             </>
           </IonToggle>
         </IonCardHeader>
       </IonCard>
+      <p>{notifs}</p>
     </>
   );
 };
