@@ -24,6 +24,7 @@ import { EventInput } from "@fullcalendar/core";
 
 interface ContainerProps {
   selectedGroups: UnGroupe[];
+  selectedProfs: string[];
 }
 interface EventInfo {
   cours: string;
@@ -37,7 +38,7 @@ interface EventInfo {
 
 const CalendarComponant: React.FC<ContainerProps> = ({
   selectedGroups,
-  
+  selectedProfs
 }) => {
   const [events, setEvents] = useState<EventInput[]>([]);
   const modal = useRef<HTMLIonModalElement | null>(null);
@@ -63,24 +64,29 @@ const CalendarComponant: React.FC<ContainerProps> = ({
           "/planning/GetPlanningIdFomrationNomGroupe",
           {
             nomGroupes: selectedGroups
-              .map((g) => {
-                return g.nomGroupe;
-              })
-              .join(","), // Replace with the actual nomGroupe if it's dynamic
+              .map((g) => g.nomGroupe)
+              .join(","),
             idFormations: selectedGroups
-              .map((g) => {
-                return g.idFormation;
-              })
-              .join(","), // Replace with the actual idFormation if it's dynamic
-            rangeDate: 10, // Replace with the actual rangeDate if it's dynamic
-            centerDate: currentDate, // Replace with the actual centerDate if it's dynamic
+              .map((g) => g.idFormation)
+              .join(","),
+            rangeDate: 10,
+            centerDate: currentDate,
+            profs: selectedProfs.join(","),
           }
         );
 
-
         let events: EventInput[] = [];
         let color;
-        response.map((c) => {
+        const uniqueCourses = new Map<string, UnCours>();
+
+        response.forEach((c) => {
+          const key = `${c.nomCours}-${c.dateDeb}-${c.dateFin}-${c.prof}-${c.lieu}`;
+          if (!uniqueCourses.has(key)) {
+            uniqueCourses.set(key, c);
+          }
+        });
+
+        uniqueCourses.forEach((c) => {
           if (c.nomGroupe == "NA") {
             color = "red";
           } else if (c.prof == "NA") {
@@ -112,9 +118,8 @@ const CalendarComponant: React.FC<ContainerProps> = ({
         console.error("Error fetching events:", error);
       }
     };
-    // main fonction
     fetchEvents();
-  }, [selectedGroups, currentDate]);
+  }, [selectedGroups, selectedProfs, currentDate]);
 
   function goNext() {
     const calendarApi = calendarRef.current?.getApi();

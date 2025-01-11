@@ -12,22 +12,28 @@ import {
   IonRefresherContent,
 } from "@ionic/react";
 import "./Home.css";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { UnGroupe } from "../interfaces";
 import SelectionGroupesComponant from "../components/GroupesSelectionComponant";
+import SelectionProfsComponant, { profResponse } from "../components/ProfsSelectionComponant";
 import CalendarComponant from "../components/CalendarComponant";
 import { NotifComponant } from "../components/notifComponant";
 
 const Home: React.FC = () => {
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
+  const [selectedProfs, setSelectedProfs] = useState<string[]>([]);
 
   const handleRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     window.location.reload();
   };
 
-  const handleGroupSelection = (groups: UnGroupe[]) => {
+  const handleGroupSelection = useCallback((groups: UnGroupe[]) => {
     setSelectedGroups(groups);
-  };
+  }, []);
+
+  const handleProfsSelection = useCallback((profs: string[]) => {
+    setSelectedProfs(profs);
+  }, []);
 
   return (
     <>
@@ -40,9 +46,14 @@ const Home: React.FC = () => {
         <IonContent>
           <NotifComponant selectedGroups={selectedGroups}></NotifComponant>
 
+          {/* Selections */}
           <SelectionGroupesComponant
             onGroupSelection={handleGroupSelection}
           ></SelectionGroupesComponant>
+
+          <SelectionProfsComponant onProfsSelection={handleProfsSelection}
+          ></SelectionProfsComponant>
+
         </IonContent>
       </IonMenu>
       <IonPage id="main-content">
@@ -51,7 +62,7 @@ const Home: React.FC = () => {
             <IonButtons slot="start">
               <IonMenuButton></IonMenuButton>
             </IonButtons>
-            <IonTitle>UPPAEDT</IonTitle>
+            <IonTitle>UPPAEDT {(selectedProfs.length > 0 ? "- Vue Enseignant" : "")}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
@@ -60,6 +71,7 @@ const Home: React.FC = () => {
           </IonRefresher>
           <CalendarComponant
             selectedGroups={selectedGroups}
+            selectedProfs={selectedProfs}
           ></CalendarComponant>
         </IonContent>
       </IonPage>

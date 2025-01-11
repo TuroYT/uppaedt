@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { UneFormation, UnGroupe } from "../interfaces";
 import { doGet, doPost } from "../utils/Requests";
 import {
@@ -26,6 +26,9 @@ const FormationComponent = ({
   const [groups, setGroups] = useState<UnGroupe[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
 
+  // Memoize the onGroupSelection function
+  const memoizedOnGroupSelection = useCallback(onGroupSelection, []);
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -44,13 +47,13 @@ const FormationComponent = ({
       const { value } = await Preferences.get({ key: `selectedGroupes` });
       if (value) {
         setSelectedGroups(JSON.parse(value));
-        onGroupSelection(JSON.parse(value));
+        memoizedOnGroupSelection(JSON.parse(value));
       }
     };
 
     fetchGroups();
     loadSelectedGroups();
-  }, [formation.idFormation]);
+  }, [formation.idFormation, memoizedOnGroupSelection]);
 
   const handleGroupSelection = async (e: CustomEvent, groupe: UnGroupe) => {
     let updatedGroups;
@@ -79,8 +82,7 @@ const FormationComponent = ({
 
       // Update state after saving preferences
       setSelectedGroups(updatedGroups);
-      onGroupSelection(updatedGroups);
-      console.log(selectedGroups);
+      memoizedOnGroupSelection(updatedGroups);
     } catch (error) {
       console.error("Error saving selected groups:", error);
     }
