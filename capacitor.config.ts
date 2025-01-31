@@ -1,20 +1,9 @@
-import type { CapacitorConfig } from "@capacitor/cli";
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: "ionic.edt4rt",
-  appName: "uppaedt",
-  webDir: "dist",
-  plugins: {
-    CapacitorHttp: {
-      enabled: true,
-    },
-  },
-  android: {
-    buildOptions: {
-      keystorePath: "/home/rpinsolle/uppaedt.jks",
-      keystoreAlias: "Key0",
-    },
-  },
+  appId: 'ionic.edt4rt',
+  appName: 'uppaedt',
+  webDir: 'dist'
 };
 
 export default config;

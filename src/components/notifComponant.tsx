@@ -59,23 +59,30 @@ export const NotifComponant: React.FC<ContainerProps> = ({
 
     //récupération des prochains cours
     const addNotifs = async () => {
-      const response: UnCours[] = await doPost(
+      let response: UnCours[] = await doPost(
         "/planning/GetPlanningIdFomrationNomGroupe",
         {
           nomGroupes: selectedGroups
-            .map((g) => {
-              return g.nomGroupe;
-            })
-            .join(","), // Replace with the actual nomGroupe if it's dynamic
+            .map((g) => g.nomGroupe)
+            .join(","),
           idFormations: selectedGroups
-            .map((g) => {
-              return g.idFormation;
-            })
-            .join(","), // Replace with the actual idFormation if it's dynamic
-          rangeDate: 10, // Replace with the actual rangeDate if it's dynamic
-          centerDate: new Date(), // Replace with the actual centerDate if it's dynamic
+            .map((g) => g.idFormation)
+            .join(","),
+          rangeDate: 10,
+          centerDate: new Date(),
+          profs: "",
         }
       );
+      const uniqueCourses = new Map<string, UnCours>();
+
+      response.forEach((c) => {
+        const key = `${c.nomCours}-${c.dateDeb}-${c.dateFin}-${c.prof}-${c.lieu}`;
+        if (!uniqueCourses.has(key)) {
+          uniqueCourses.set(key, c);
+        }
+      });
+
+      response = Array.from(uniqueCourses.values());
 
       if (checked) {
          LocalNotifications.requestPermissions();
@@ -139,7 +146,6 @@ export const NotifComponant: React.FC<ContainerProps> = ({
           </IonToggle>
         </IonCardHeader>
       </IonCard>
-      <p>{notifs}</p>
     </>
   );
 };
