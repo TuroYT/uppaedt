@@ -1,7 +1,5 @@
 // Prod
-const API_URL = "https://uppaedtv2.romain-pinsolle.fr"
+const API_URL = process.env.API_URL || "https://uppaedt-prod.coolify.romain-pinsolle.fr"
 
-// Dev
-//const API_URL = "http://localhost:3000"
 
 export default API_URL
