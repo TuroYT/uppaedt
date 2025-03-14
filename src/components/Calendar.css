@@ -1,42 +1,103 @@
 #main {
-    margin-top : 5px;
-  }
+    margin-top: 5px;
+}
   
-  .center {
-      text-align: center;
-  }
+.center {
+    text-align: center;
+}
   
-  
-  ion-modal {
-    --width: fit-content;
-    --min-width: 250px;
-    --height: fit-content;
-    --border-radius: 6px;
-    --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
-  }
+ion-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  --border-radius: 6px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
 
 .redText {
   color: red;
 }
 
+/* Default light mode styles for FullCalendar */
+.fc {
+  --fc-border-color: #e0e0e0;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #f5f5f5;
+  --fc-list-event-hover-bg-color: #f0f0f0;
+  --fc-theme-standard-border-color: #e0e0e0;
+  
+  /* Event styling */
+  --fc-event-bg-color: #3788d8;
+  --fc-event-border-color: #2c6fb1;
+  --fc-event-text-color: #ffffff;
+  
+  /* Day & time grid */
+  --fc-neutral-text-color: #666;
+  
+  /* Font improvements */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Enhanced event styling */
+.fc-event {
+  border-radius: 4px !important;
+  padding: 2px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  transition: transform 0.1s ease-in-out !important;
+}
+
+.fc-event:hover {
+  transform: scale(1.01) !important;
+  z-index: 5 !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Better now indicator styling */
+.fc-timegrid-now-indicator-line {
+  border-color: #ff5050 !important;
+  border-width: 2px !important;
+}
+
+.fc-timegrid-now-indicator-arrow {
+  border-color: #ff5050 !important;
+  border-width: 5px !important;
+}
+
+/* Highlight current day */
+.fc .fc-day-today {
+  background-color: rgba(66, 133, 244, 0.05) !important;
+}
+
+/* Enhanced header styling */
+.fc .fc-col-header-cell {
+  background-color: #f8f9fa;
+  padding: 8px 0;
+  font-weight: 600;
+}
+
+/* Nicer time label styling */
+.fc .fc-timegrid-axis-cushion {
+  font-weight: 500;
+  color: #555;
+}
+
 /* Dark mode styles for FullCalendar */
 body.dark .fc {
-  --fc-border-color: #555;
+  --fc-border-color: #3a3a3a;
   --fc-page-bg-color: #121212;
   --fc-neutral-bg-color: #2d2d2d;
   --fc-list-event-hover-bg-color: #2d2d2d;
-  --fc-theme-standard-border-color: #555;
+  --fc-theme-standard-border-color: #3a3a3a;
   
   /* Event styling */
-  --fc-event-bg-color: #3f3f3f;
-  --fc-event-border-color: #666;
+  --fc-event-bg-color: #3f51b5;
+  --fc-event-border-color: #303f9f;
   --fc-event-text-color: #fff;
   
   /* Day & time grid */
   --fc-neutral-text-color: #ccc;
-  --fc-neutral-bg-color: #2d2d2d;
   
-  color: #fff;
+  color: #eee;
 }
 
 body.dark .fc-timegrid-slot {
@@ -44,27 +105,53 @@ body.dark .fc-timegrid-slot {
 }
 
 body.dark .fc-timegrid-slot-minor {
-  border-top-color: #444;
+  border-top-color: #333;
 }
 
 body.dark .fc-col-header-cell {
-  background-color: #2d2d2d;
+  background-color: #252525;
+  color: #eee;
+  font-weight: 500;
 }
 
 body.dark .fc-timegrid-axis {
-  background-color: #2d2d2d;
+  background-color: #252525;
 }
 
 body.dark .fc-timegrid-now-indicator-line {
-  border-color: #ff5050;
+  border-color: #ff5050 !important;
+  border-width: 2px !important;
 }
 
 body.dark .fc .fc-highlight {
   background-color: rgba(63, 81, 181, 0.3);
 }
 
+body.dark .fc .fc-day-today {
+  background-color: rgba(63, 81, 181, 0.15) !important;
+}
+
 /* Fix event text color in dark mode */
 body.dark .fc-event-title,
 body.dark .fc-event-time {
   color: #fff;
+}
+
+/* Event color customizations */
+.fc-event[style*="background-color: red"] {
+  background: linear-gradient(to right, #ff4d4d, #ff6666) !important;
+  color: white !important;
+  border-color: #ff3333 !important;
+}
+
+.fc-event[style*="background-color: #005049"] {
+  background: linear-gradient(to right, #005049, #007a6e) !important;
+  color: white !important;
+  border-color: #004040 !important;
+}
+
+/* Default event styling */
+.fc-event.fc-event-default-color:not([style*="background-color"]) {
+  background: linear-gradient(to right, #3788d8, #5c9ce6) !important;
+  border-color: #2c6fb1 !important;
 }

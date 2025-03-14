@@ -63,6 +63,8 @@ const App: React.FC = () => {
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
+
+
     </IonApp>
   );
 };

@@ -56,6 +56,28 @@ const CalendarComponant: React.FC<ContainerProps> = ({
     isLastCours: false,
     groupe: "",
   });
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  // Check for dark mode
+  useEffect(() => {
+    // Initial check
+    setIsDarkMode(document.body.classList.contains('dark'));
+
+    // Create observer to watch for class changes on body
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDarkMode(document.body.classList.contains('dark'));
+        }
+      });
+    });
+
+    // Start observing
+    observer.observe(document.body, { attributes: true });
+
+    // Cleanup
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -217,20 +239,21 @@ const CalendarComponant: React.FC<ContainerProps> = ({
         <>
           <div id="main" {...handlers}>
             <div className="center">
-              <IonButton
+                <IonButton
                 id="datetime-picker"
                 shape="round"
-                fill="outline"
                 size="large"
-              >
-                {currentDate.toLocaleDateString()}
-              </IonButton>
+                color={isDarkMode ? "dark" : "primary"}
+                fill={isDarkMode ? "solid" : "outline"}
+                >   
+                {currentDate.toLocaleDateString("fr-FR")}
+                </IonButton>
               <br />
-              <IonButton onClick={today}>Ajourd'hui</IonButton>
-              <IonButton onClick={goBack} slot="icon-only">
+              <IonButton onClick={today} color={isDarkMode ? "dark" : "primary"}>Ajourd'hui</IonButton>
+              <IonButton onClick={goBack} slot="icon-only" color={isDarkMode ? "dark" : "primary"}>
                 <IonIcon slot="icon-only" icon={caretBackOutline}></IonIcon>
               </IonButton>
-              <IonButton onClick={goNext} slot="icon-only">
+              <IonButton onClick={goNext} slot="icon-only" color={isDarkMode ? "dark" : "primary"}>
                 <IonIcon slot="icon-only" icon={caretForwardOutline}></IonIcon>
               </IonButton>
             </div>

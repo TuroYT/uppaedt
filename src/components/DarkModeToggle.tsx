@@ -39,14 +39,15 @@ const DarkModeToggle: React.FC = () => {
 
   return (
     <IonItem lines="none">
-      <IonIcon icon={sunny} slot="start" />
+      
       <IonLabel>Mode sombre</IonLabel>
       <IonToggle 
         checked={darkMode} 
         onIonChange={toggleDarkMode} 
         slot="end"
       />
-      <IonIcon icon={moon} slot="end" />
+      {darkMode ? <IonIcon icon={moon} slot="end" /> : <IonIcon icon={sunny} slot="end" />}
+      
     </IonItem>
   );
 };
