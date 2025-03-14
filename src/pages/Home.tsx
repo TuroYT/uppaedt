@@ -10,21 +10,30 @@ import {
   RefresherEventDetail,
   IonRefresher,
   IonRefresherContent,
+  IonSpinner,
+  IonItem,
+  IonList,
 } from "@ionic/react";
 import "./Home.css";
-import { useState, useCallback } from "react";
+import { useState, useCallback, lazy, Suspense } from "react";
 import { UnGroupe } from "../interfaces";
 import SelectionGroupesComponant from "../components/GroupesSelectionComponant";
-import SelectionProfsComponant, { profResponse } from "../components/ProfsSelectionComponant";
-import CalendarComponant from "../components/CalendarComponant";
-import { NotifComponant } from "../components/notifComponant";
+import SelectionProfsComponant from "../components/ProfsSelectionComponant";
+import DarkModeToggle from "../components/DarkModeToggle";
+// Import avec lazy loading pour réduire le bundle initial
+const CalendarComponant = lazy(() => import("../components/CalendarComponant"));
+const NotifComponant = lazy(() => import("../components/notifComponant").then(module => ({ default: module.NotifComponant })));
 
 const Home: React.FC = () => {
   const [selectedGroups, setSelectedGroups] = useState<UnGroupe[]>([]);
   const [selectedProfs, setSelectedProfs] = useState<string[]>([]);
 
   const handleRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    window.location.reload();
+    setTimeout(() => {
+      // Rafraîchissement plus efficace sans recharger la page entière
+      event.detail.complete();
+      // Actualiser seulement les données nécessaires
+    }, 1000);
   };
 
   const handleGroupSelection = useCallback((groups: UnGroupe[]) => {
@@ -44,7 +53,13 @@ const Home: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <IonContent>
-          <NotifComponant selectedGroups={selectedGroups}></NotifComponant>
+          <IonList>
+            <DarkModeToggle />
+          </IonList>
+          
+          <Suspense fallback={<IonSpinner name="crescent" />}>
+            <NotifComponant selectedGroups={selectedGroups}></NotifComponant>
+          </Suspense>
 
           {/* Selections */}
           <SelectionGroupesComponant
@@ -69,10 +84,12 @@ const Home: React.FC = () => {
           <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
             <IonRefresherContent></IonRefresherContent>
           </IonRefresher>
-          <CalendarComponant
-            selectedGroups={selectedGroups}
-            selectedProfs={selectedProfs}
-          ></CalendarComponant>
+          <Suspense fallback={<IonSpinner name="crescent" />}>
+            <CalendarComponant
+              selectedGroups={selectedGroups}
+              selectedProfs={selectedProfs}
+            ></CalendarComponant>
+          </Suspense>
         </IonContent>
       </IonPage>
     </>

@@ -79,7 +79,7 @@ const ProfsSelectionComponant: React.FC<ProfsSelectionComponantProps> = ({
       <IonAccordionGroup expand="inset">
         {profs.length > 0 ? (
           <IonAccordion value="profs">
-            <IonItem slot="header" color="light">
+            <IonItem slot="header" >
               <IonLabel>Espace Enseignant</IonLabel>
             </IonItem>
             {profs.map((prof) => (

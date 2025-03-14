@@ -1,6 +1,6 @@
 import { Preferences } from "@capacitor/preferences";
 import { UnCours, UnGroupe } from "../interfaces";
-import { IonCard, IonCardHeader, IonToggle } from "@ionic/react";
+import { IonCard, IonCardHeader, IonItem, IonLabel, IonToggle } from "@ionic/react";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -136,14 +136,16 @@ export const NotifComponant: React.FC<ContainerProps> = ({
 
   return (
     <>
-      <IonCard>
-        <IonCardHeader>
-          <IonToggle onClick={handleCheck} checked={checked}>
-            <>
-              <p className="darkText">Activer les notifications ?</p>
-              
-            </>
-          </IonToggle>
+      <IonCard className="notif-card">
+        <IonCardHeader className="notif-card-header">
+          <IonItem lines="none" className="notification-toggle">
+            <IonLabel>Activer les notifications ?</IonLabel>
+            <IonToggle 
+              onClick={handleCheck} 
+              checked={checked}
+              slot="end"
+            />
+          </IonItem>
         </IonCardHeader>
       </IonCard>
     </>

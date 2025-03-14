@@ -90,7 +90,7 @@ const FormationComponent = ({
 
   return (
     <IonAccordion key={formation.idFormation}>
-      <IonItem slot="header" color="light">
+      <IonItem slot="header" >
         <IonLabel>{formation.nom}</IonLabel>
       </IonItem>
       {groups.map((groupe) => {

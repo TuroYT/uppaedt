@@ -18,3 +18,53 @@
 .redText {
   color: red;
 }
+
+/* Dark mode styles for FullCalendar */
+body.dark .fc {
+  --fc-border-color: #555;
+  --fc-page-bg-color: #121212;
+  --fc-neutral-bg-color: #2d2d2d;
+  --fc-list-event-hover-bg-color: #2d2d2d;
+  --fc-theme-standard-border-color: #555;
+  
+  /* Event styling */
+  --fc-event-bg-color: #3f3f3f;
+  --fc-event-border-color: #666;
+  --fc-event-text-color: #fff;
+  
+  /* Day & time grid */
+  --fc-neutral-text-color: #ccc;
+  --fc-neutral-bg-color: #2d2d2d;
+  
+  color: #fff;
+}
+
+body.dark .fc-timegrid-slot {
+  background-color: #1e1e1e;
+}
+
+body.dark .fc-timegrid-slot-minor {
+  border-top-color: #444;
+}
+
+body.dark .fc-col-header-cell {
+  background-color: #2d2d2d;
+}
+
+body.dark .fc-timegrid-axis {
+  background-color: #2d2d2d;
+}
+
+body.dark .fc-timegrid-now-indicator-line {
+  border-color: #ff5050;
+}
+
+body.dark .fc .fc-highlight {
+  background-color: rgba(63, 81, 181, 0.3);
+}
+
+/* Fix event text color in dark mode */
+body.dark .fc-event-title,
+body.dark .fc-event-time {
+  color: #fff;
+}
