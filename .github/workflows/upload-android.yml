@@ -91,7 +91,7 @@ jobs:
         # Vérifiez ce chemin, il peut varier légèrement selon la config Gradle/AGP
         releaseFiles: ./android/app/build/outputs/bundle/release/app-release.aab
         # Track de déploiement (internal, alpha, beta, production)
-        track: internal # Commencez par 'internal' pour tester !
+        track: production # Commencez par 'internal' pour tester !
         # Optionnel: Statut de la release (completed, draft, halted, inProgress)
         status: completed
         # Optionnel: Pour ajouter des notes de version (What's New)
