@@ -16,13 +16,41 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
+    def keystorePropertiesFile = rootProject.file("keystore.properties")
+    def keystoreProperties = new Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    }
+
+    signingConfigs {
+        release {
+            // Use the properties defined in gradle.properties
+            // Use 'project.properties['KEY_NAME'] ?: System.getenv("ENV_VAR_NAME")'
+            // to fallback to environment variables if needed.
+            if (keystorePropertiesFile.exists()) {
+            storeFile file(keystoreProperties['storeFile']) // storeFile sera défini par le workflow
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        } else if (System.getenv("SIGNING_STORE_PASSWORD") != null) {
+            storeFile file(project.properties['MYAPP_RELEASE_STORE_FILE'])
+            storePassword project.properties['MYAPP_RELEASE_STORE_PASSWORD']
+            keyAlias project.properties['MYAPP_RELEASE_KEY_ALIAS']
+            keyPassword project.properties['MYAPP_RELEASE_KEY_PASSWORD']
+        }}
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
+
 
 repositories {
     flatDir{
