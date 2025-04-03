@@ -47,7 +47,7 @@ jobs:
       # Crée le fichier keystore à partir de la version Base64 stockée dans les secrets
       # Le chemin './android/keystore.jks' est relatif à la racine du projet
       run: |
-        echo "${{ secrets.ANDROID_SIGNING_KEYSTORE_B64 }}" | base64 --decode > ./android/keystore.jks
+        echo "${{ secrets.ANDROID_SIGNING_KEYSTORE_B64 }}" | base64 --decode > ./android/app/keystore.jks
       # Assurez-vous que le répertoire android existe bien à la racine
 
     - name: 8. Création du fichier keystore.properties
