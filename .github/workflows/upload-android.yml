@@ -1,0 +1,99 @@
+name: Build and Deploy Android Release to Google Play
+
+on:
+  push:
+    branches:
+      - master # Ou 'master', 'release', etc. Déclencher sur push vers cette branche
+  workflow_dispatch: # Permet de déclencher manuellement depuis l'interface GitHub Actions
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      # Récupère le nom du package depuis les secrets
+      PACKAGE_NAME: ${{ secrets.PACKAGE_NAME }}
+
+    steps:
+    - name: 1. Checkout du code source
+      uses: actions/checkout@v4
+
+    - name: 2. Setup Java JDK (requis pour Gradle)
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin' # Ou 'zulu', 'adopt', etc.
+        java-version: '17' # Ou '11' selon les besoins de votre projet/Gradle
+
+    - name: 3. Setup Node.js (requis pour Ionic/NPM)
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.9.0' # ou '20', utilisez une version LTS compatible
+        cache: 'npm' # Active le cache pour les dépendances NPM
+
+    - name: 4. Installation des dépendances NPM
+      run: npm ci # 'ci' est généralement plus rapide et sûr en CI que 'install'
+
+    - name: 5. Installation des CLIs Ionic et Capacitor (Globalement ou via npx)
+      # Option 1: Globalement (si vos scripts n'utilisent pas npx)
+      run: npm install -g @ionic/cli @capacitor/cli
+      # Option 2: Utiliser npx (généralement préférable, utilise les versions du projet)
+      # Aucune étape supplémentaire n'est nécessaire si vous appelez `npx ionic ...` et `npx cap ...`
+
+    - name: 6. Build de l'application Ionic/Capacitor pour Android (Prod)
+      # Utilise npx pour exécuter les commandes depuis les dépendances du projet
+      run: npx ionic capacitor build android --prod
+
+    # --- Préparation de la signature ---
+    - name: 7. Décodage et sauvegarde du Keystore depuis les secrets
+      # Crée le fichier keystore à partir de la version Base64 stockée dans les secrets
+      # Le chemin './android/keystore.jks' est relatif à la racine du projet
+      run: |
+        echo "${{ secrets.ANDROID_SIGNING_KEYSTORE_B64 }}" | base64 --decode > ./android/keystore.jks
+      # Assurez-vous que le répertoire android existe bien à la racine
+
+    - name: 8. Création du fichier keystore.properties
+      # Crée le fichier de propriétés que build.gradle lira pour la signature
+      # Le chemin './android/keystore.properties' est relatif à la racine du projet
+      run: |
+        echo "storeFile=keystore.jks" > ./android/keystore.properties
+        echo "storePassword=${{ secrets.ANDROID_SIGNING_STORE_PASSWORD }}" >> ./android/keystore.properties
+        echo "keyAlias=${{ secrets.ANDROID_SIGNING_KEY_ALIAS }}" >> ./android/keystore.properties
+        echo "keyPassword=${{ secrets.ANDROID_SIGNING_KEY_PASSWORD }}" >> ./android/keystore.properties
+      # Assurez-vous que le répertoire android existe bien à la racine
+
+    # --- Génération de l'App Bundle signé ---
+    - name: 9. Setup du cache Gradle
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: 10. Accorder les permissions d'exécution à gradlew
+      run: chmod +x ./gradlew
+      working-directory: ./android # Se place dans le répertoire android
+
+    - name: 11. Génération de l'App Bundle signé (Release)
+      run: ./gradlew bundleRelease
+      working-directory: ./android # Exécute la commande depuis le répertoire android
+
+    # --- Déploiement sur Google Play ---
+    - name: 12. Upload de l'App Bundle sur Google Play Console
+      uses: r0adkll/upload-google-play@v1.1.3 # Vérifiez la dernière version sur le marketplace
+      with:
+        # Clé JSON du compte de service Google Play (contenu brut)
+        serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        # Nom du package de l'application
+        packageName: ${{ env.PACKAGE_NAME }}
+        # Chemin vers le fichier AAB généré
+        # Vérifiez ce chemin, il peut varier légèrement selon la config Gradle/AGP
+        releaseFiles: ./android/app/build/outputs/bundle/release/app-release.aab
+        # Track de déploiement (internal, alpha, beta, production)
+        track: internal # Commencez par 'internal' pour tester !
+        # Optionnel: Statut de la release (completed, draft, halted, inProgress)
+        status: completed
+        # Optionnel: Pour ajouter des notes de version (What's New)
+        # userFraction: 0.5 # Pour les déploiements progressifs (ex: 50%)
+        # whatsNewDirectory: ./path/to/whatsnew/ # Chemin vers les notes de version par langue
